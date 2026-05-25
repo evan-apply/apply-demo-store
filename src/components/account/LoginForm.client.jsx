@@ -1,5 +1,6 @@
 import React from 'react';
 import {useNavigate, Link} from '@shopify/hydrogen/client';
+import {identifyUser, track} from '../../lib/segment.client';
 
 export default function LoginForm({shopName}) {
   const navigate = useNavigate();
@@ -45,7 +46,15 @@ export default function LoginForm({shopName}) {
       if (response.error) {
         setHasSubmitError(true);
         resetForm();
+        track('Login Failed', {email, error: response.error});
       } else {
+        // Segment: identify with email — userId will be enriched on /account load
+        identifyUser(null, {
+          email,
+          last_login:   new Date().toISOString(),
+          login_method: 'password',
+        });
+        track('User Signed In', {email, method: 'password'});
         navigate('/account');
       }
     } else {

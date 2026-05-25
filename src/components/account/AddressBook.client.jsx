@@ -131,7 +131,7 @@ function ConfirmRemove({close, deleteAddress}) {
       <div className="fixed w-full h-full bg-white opacity-95 z-50 top-0 left-0"></div>
       <div className="fixed w-full h-full z-50 top-0 left-0">
         <div className="flex justify-center mt-64 items-center">
-          <div className="bg-gray-50 max-w-md w-full p-4">
+          <div className="bg-white max-w-md w-full p-4">
             <div className="text-xl">Confirm removal</div>
             <div>Are you sure you wish to remove this address?</div>
 

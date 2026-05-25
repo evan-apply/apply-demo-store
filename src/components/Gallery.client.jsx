@@ -7,8 +7,8 @@ export default function Gallery({product}) {
   const {selectedVariant} = useProductOptions();
   const media = product.media.nodes;
 
-  const featuredMedia = selectedVariant.image || media[0]?.image;
-  const featuredMediaSrc = featuredMedia?.url.split('?')[0];
+  const featuredMedia = selectedVariant.image || media[0]?.image || product.featuredImage;
+  const featuredMediaSrc = featuredMedia?.url?.split('?')[0];
   const galleryMedia = media.filter((med) => {
     if (
       med.mediaContentType === MODEL_3D_TYPE ||
@@ -30,11 +30,13 @@ export default function Gallery({product}) {
       className="gap-4 flex md:grid md:grid-cols-2 overflow-x-scroll no-scrollbar scroll-snap-x scroll-smooth h-[485px] md:h-auto place-content-start"
       tabIndex="-1"
     >
-      <Image
-        fetchpriority="high"
-        data={selectedVariant.image}
-        className="w-[80vw] md:w-full h-full md:h-auto object-cover object-center flex-shrink-0 md:flex-shrink-none snap-start md:col-span-2 border border-gray-200 rounded-lg"
-      />
+      {featuredMedia && (
+        <Image
+          fetchpriority="high"
+          data={featuredMedia}
+          className="w-[80vw] md:w-full h-full md:h-auto object-cover object-center flex-shrink-0 md:flex-shrink-none snap-start md:col-span-2 border border-[#E5E7EB] rounded-lg"
+        />
+      )}
       {galleryMedia.map((med) => {
         let extraProps = {};
 

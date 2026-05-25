@@ -14,9 +14,10 @@ export default function CartIconWithItems() {
         <CartIcon />
 
         <div
-          className={`bg-blue-700 text-xs rounded-full leading-none text-white absolute bottom-3 right-1 flex items-center justify-center transform translate-y-1/2 transition-all ${
+          className={`text-[9px] rounded-full leading-none text-white absolute -top-1 -right-1 flex items-center justify-center transition-all ${
             totalQuantity > 0 ? 'h-4 w-4' : 'h-0 w-0 overflow-hidden'
           }`}
+          style={{backgroundColor: '#FF481A'}}
           aria-hidden
         >
           {totalQuantity > 0 ? totalQuantity : null}

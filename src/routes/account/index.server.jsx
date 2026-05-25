@@ -15,6 +15,7 @@ import OrderHistory from '../../components/account/OrderHistory.server';
 import LogoutButton from '../../components/account/LogoutButton.client';
 import EditAccountDetails from '../../components/account/EditAccountDetails.client';
 import EditAddress from '../../components/account/EditAddress.client';
+import SegmentIdentify from '../../components/SegmentIdentify.client';
 
 export default function Account({response, editingAccount, editingAddress}) {
   response.cache(NoStore());
@@ -80,11 +81,15 @@ export default function Account({response, editingAccount, editingAddress}) {
   }
 
   return (
-    <AuthenticatedAccount
-      customer={customer}
-      addresses={addresses}
-      defaultAddress={defaultAddress}
-    />
+    <>
+      {/* Segment: identify the logged-in customer with full profile */}
+      <SegmentIdentify customer={customer} />
+      <AuthenticatedAccount
+        customer={customer}
+        addresses={addresses}
+        defaultAddress={defaultAddress}
+      />
+    </>
   );
 }
 

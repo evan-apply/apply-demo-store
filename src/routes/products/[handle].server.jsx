@@ -17,42 +17,29 @@ import {useContentfulQuery} from '../../api/useContetnfulQuery';
 export default function Product() {
   const {handle} = useRouteParams();
   const {countryCode = 'US'} = useSession();
-
   const {languageCode} = useShop();
 
-  const {
-    data: {product},
-  } = useShopQuery({
+  const {data: {product}} = useShopQuery({
     query: QUERY,
-    variables: {
-      country: countryCode,
-      language: languageCode,
-      handle,
-    },
+    variables: {country: countryCode, language: languageCode, handle},
     preload: true,
   });
 
   useServerAnalytics(
     product
-      ? {
-          shopify: {
-            pageType: ShopifyAnalyticsConstants.pageType.product,
-            resourceId: product.id,
-          },
-        }
+      ? {shopify: {pageType: ShopifyAnalyticsConstants.pageType.product, resourceId: product.id}}
       : null,
   );
 
-  if (!product) {
-    return <NotFound />;
-  }
-
-  product.contentful = useContentfulQuery({
+  // Contentful enrichment — always call the hook (rules of hooks)
+  const contentfulData = useContentfulQuery({
     query: CONTENTFUL_QUERY,
-    variables: {
-      handle,
-    },
+    variables: {handle},
   });
+
+  if (!product) return <NotFound />;
+
+  product.contentful = contentfulData;
 
   return (
     <Layout>
@@ -70,23 +57,12 @@ const QUERY = gql`
   ) @inContext(country: $country, language: $language) {
     product: product(handle: $handle) {
       compareAtPriceRange {
-        maxVariantPrice {
-          currencyCode
-          amount
-        }
-        minVariantPrice {
-          currencyCode
-          amount
-        }
+        maxVariantPrice { currencyCode amount }
+        minVariantPrice { currencyCode amount }
       }
       description
       descriptionHtml
-      featuredImage {
-        url
-        width
-        height
-        altText
-      }
+      featuredImage { url width height altText }
       handle
       id
       vendor
@@ -94,24 +70,13 @@ const QUERY = gql`
         nodes {
           ... on MediaImage {
             mediaContentType
-            image {
-              id
-              url
-              altText
-              width
-              height
-            }
+            image { id url altText width height }
           }
           ... on Video {
             mediaContentType
             id
-            previewImage {
-              url
-            }
-            sources {
-              mimeType
-              url
-            }
+            previewImage { url }
+            sources { mimeType url }
           }
           ... on ExternalVideo {
             mediaContentType
@@ -123,112 +88,28 @@ const QUERY = gql`
             mediaContentType
             id
             alt
-            mediaContentType
-            previewImage {
-              url
-            }
-            sources {
-              url
-            }
-          }
-        }
-      }
-      metafields(first: 20) {
-        nodes {
-          id
-          type
-          namespace
-          key
-          value
-          createdAt
-          updatedAt
-          description
-          reference {
-            __typename
-            ... on MediaImage {
-              id
-              mediaContentType
-              image {
-                id
-                url
-                altText
-                width
-                height
-              }
-            }
+            previewImage { url }
+            sources { url }
           }
         }
       }
       priceRange {
-        maxVariantPrice {
-          currencyCode
-          amount
-        }
-        minVariantPrice {
-          currencyCode
-          amount
-        }
+        maxVariantPrice { currencyCode amount }
+        minVariantPrice { currencyCode amount }
       }
-      seo {
-        description
-        title
-      }
+      seo { description title }
       title
       variants(first: 250) {
         nodes {
           availableForSale
-          compareAtPriceV2 {
-            amount
-            currencyCode
-          }
+          compareAtPriceV2 { amount currencyCode }
           id
-          image {
-            id
-            url
-            altText
-            width
-            height
-          }
-          metafields(first: 10) {
-            nodes {
-              id
-              type
-              namespace
-              key
-              value
-              createdAt
-              updatedAt
-              description
-              reference {
-                __typename
-                ... on MediaImage {
-                  id
-                  mediaContentType
-                  image {
-                    id
-                    url
-                    altText
-                    width
-                    height
-                  }
-                }
-              }
-            }
-          }
-          priceV2 {
-            amount
-            currencyCode
-          }
-          selectedOptions {
-            name
-            value
-          }
+          image { id url altText width height }
+          priceV2 { amount currencyCode }
+          selectedOptions { name value }
           sku
           title
-          unitPrice {
-            amount
-            currencyCode
-          }
+          unitPrice { amount currencyCode }
           unitPriceMeasurement {
             measuredType
             quantityUnit
@@ -244,7 +125,6 @@ const QUERY = gql`
 
 const CONTENTFUL_QUERY = gql`
   query ($handle: String!) {
-    # add your query
     productCollection(where: {handle: $handle}) {
       items {
         productName

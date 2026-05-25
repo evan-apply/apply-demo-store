@@ -1,6 +1,7 @@
 import React from 'react';
 import {useNavigate, Link} from '@shopify/hydrogen/client';
 import {callLoginApi} from './LoginForm.client';
+import {identifyUser, track} from '../../lib/segment.client';
 
 export default function AccountCreateForm() {
   const navigate = useNavigate();
@@ -63,10 +64,15 @@ export default function AccountCreateForm() {
     }
 
     // this can be avoided if customerCreate mutation returns customerAccessToken
-    await callLoginApi({
+    await callLoginApi({email, password});
+
+    // Segment: identify new user — userId enriched on /account load
+    identifyUser(null, {
       email,
-      password,
+      signup_method: 'email',
+      created_at:    new Date().toISOString(),
     });
+    track('User Registered', {email, method: 'email'});
 
     navigate('/account');
   }

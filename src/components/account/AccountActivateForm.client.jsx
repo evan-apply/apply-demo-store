@@ -1,5 +1,6 @@
 import React from 'react';
 import {useNavigate} from '@shopify/hydrogen/client';
+import {identifyUser, track} from '../../lib/segment.client';
 
 export default function AccountActivateForm({id, activationToken}) {
   const navigate = useNavigate();
@@ -61,6 +62,13 @@ export default function AccountActivateForm({id, activationToken}) {
       setSubmitError(response.error);
       return;
     }
+
+    // Segment: identify invite-activated user — userId enriched on /account load
+    identifyUser(id, {
+      signup_method: 'invite',
+      activated_at:  new Date().toISOString(),
+    });
+    track('User Registered', {method: 'invite', shopify_customer_id: id});
 
     navigate('/account');
   }

@@ -1,4 +1,5 @@
 import {useCallback, useState} from 'react';
+import {identifyUser, track} from '../../lib/segment.client';
 import {useServerProps} from '@shopify/hydrogen';
 
 function emailValidation(email) {
@@ -105,6 +106,17 @@ export default function EditAccountDetails({
       setSubmitError(accountUpdateResponse.error);
       return;
     }
+
+    // Segment: update identity with new profile data
+    identifyUser(null, {
+      email,
+      first_name:   firstName || undefined,
+      last_name:    lastName  || undefined,
+      name:         [firstName, lastName].filter(Boolean).join(' ') || undefined,
+      phone:        phone     || undefined,
+      profile_updated_at: new Date().toISOString(),
+    });
+    track('Account Updated', {email, fields_changed: ['email', firstName && 'firstName', lastName && 'lastName', phone && 'phone'].filter(Boolean)});
 
     close();
   }

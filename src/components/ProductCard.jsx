@@ -5,49 +5,69 @@ import MoneyCompareAtPrice from './MoneyCompareAtPrice.client';
 import MoneyPrice from './MoneyPrice.client';
 
 /**
- * A shared component that displays a single product to allow buyers to quickly identify a particular item of interest
+ * Apply Digital — Editorial Momentum
+ * Product card: warm white bg, 8px radius, orange badge, hover scale
  */
 export default function ProductCard({product}) {
   const selectedVariant = product.variants.edges[0].node;
 
-  if (selectedVariant == null) {
-    return null;
-  }
+  if (selectedVariant == null) return null;
 
   return (
-    <div className="text-md mb-4 relative">
+    <div className="group relative">
       <Link to={`/products/${product.handle}`}>
-        <div className="rounded-lg border-2 border-gray-200 mb-2 relative flex items-center justify-center overflow-hidden object-cover h-96">
+        {/* Image container */}
+        <div className="relative overflow-hidden rounded-lg bg-white border border-[#E5E7EB] mb-3 aspect-square">
           {selectedVariant.image ? (
             <Image
-              className="bg-white absolute w-full h-full transition-all duration-500 ease-in-out transform bg-center bg-cover object-center object-contain hover:scale-110"
+              className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
               data={selectedVariant.image}
             />
-          ) : null}
+          ) : (
+            <div className="absolute inset-0 bg-[#F3F3F4] flex items-center justify-center">
+              <span className="text-[#6D6A63] text-sm" style={{fontFamily: "'Space Grotesk', sans-serif"}}>No image</span>
+            </div>
+          )}
+
+          {/* Out of stock badge */}
           {!selectedVariant?.availableForSale && (
-            <div className="absolute top-3 left-3 rounded-3xl text-xs bg-black text-white py-3 px-4">
+            <div className="absolute top-3 left-3 bg-[#282A33] text-white text-[11px] font-medium tracking-[0.06em] uppercase px-3 py-1.5 rounded-full"
+              style={{fontFamily: "'Space Grotesk', sans-serif"}}>
               Out of stock
             </div>
           )}
         </div>
 
-        <span className="text-black font-semibold mb-0.5">{product.title}</span>
+        {/* Product info */}
+        <div className="space-y-1">
+          <h3
+            className="text-[#282A33] font-semibold text-[15px] leading-snug group-hover:text-[#FF481A] transition-colors"
+            style={{fontFamily: "'Space Grotesk', sans-serif"}}
+          >
+            {product.title}
+          </h3>
 
-        {product.vendor && (
-          <p className="text-gray-900 font-medium text-sm mb-0.5">
-            {product.vendor}
-          </p>
-        )}
-
-        <div className="flex ">
-          {selectedVariant.compareAtPriceV2 && (
-            <Suspense fallback={null}>
-              <MoneyCompareAtPrice money={selectedVariant.compareAtPriceV2} />
-            </Suspense>
+          {product.vendor && (
+            <p className="text-[#6D6A63] text-[13px] tracking-[0.04em] uppercase"
+              style={{fontFamily: "'Space Grotesk', sans-serif"}}>
+              {product.vendor}
+            </p>
           )}
-          <Suspense fallback={null}>
-            <MoneyPrice money={selectedVariant.priceV2} />
-          </Suspense>
+
+          <div className="flex items-baseline gap-2 pt-0.5">
+            {selectedVariant.compareAtPriceV2 && (
+              <Suspense fallback={null}>
+                <span className="text-[#6D6A63] line-through text-sm">
+                  <MoneyCompareAtPrice money={selectedVariant.compareAtPriceV2} />
+                </span>
+              </Suspense>
+            )}
+            <Suspense fallback={null}>
+              <span className="text-[#282A33] font-semibold text-[15px]" style={{fontFamily: "'Space Grotesk', sans-serif"}}>
+                <MoneyPrice money={selectedVariant.priceV2} />
+              </span>
+            </Suspense>
+          </div>
         </div>
       </Link>
     </div>

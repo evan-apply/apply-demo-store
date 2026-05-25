@@ -35,7 +35,7 @@ export default function MobileNavigation({collections, isOpen, setIsOpen}) {
           {isOpen ? <CloseIcon /> : <OpenIcon />}
         </button>
         {isOpen ? (
-          <div className="fixed -left-0 top-20 w-full h-screen z-10 bg-gray-50 px-4 md:px-12 py-7">
+          <div className="fixed -left-0 top-20 w-full h-screen z-10 bg-white px-4 md:px-12 py-7">
             <ul>
               {collections.map((collection) => (
                 <li className="border-b border-gray-200" key={collection.id}>

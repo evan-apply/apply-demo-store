@@ -5,7 +5,7 @@ const DEFAULT_CLASSES =
 
 const VARIANT_CLASSES = {
   primary: 'text-white bg-gray-900 hover:bg-gray-800 active:bg-gray-700',
-  secondary: 'bg-white hover:bg-gray-50 active:bg-gray-100 border border-black',
+  secondary: 'bg-white hover:bg-white active:bg-gray-100 border border-black',
 };
 
 export const BUTTON_PRIMARY_CLASSES = `${DEFAULT_CLASSES} ${VARIANT_CLASSES.primary}`;
