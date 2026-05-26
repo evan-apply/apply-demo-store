@@ -11,6 +11,7 @@ import Header from './Header.client';
 import Footer from './Footer.server';
 import Cart from './Cart.client';
 import SegmentProvider from './SegmentProvider.client';
+import NinetailedPersonalizationProvider from './NinetailedProvider.client';
 import {Suspense} from 'react';
 import {useSession} from '@shopify/hydrogen';
 import {useContentfulQuery} from '../api/useContetnfulQuery';
@@ -52,6 +53,8 @@ export default function Layout({children, hero}) {
 
       <div className="min-h-screen max-w-screen" style={{backgroundColor: '#FFFFFF', color: '#282A33'}}>
         <Suspense fallback={null}>
+          {/* NinetailedInit: standalone, no children — initialises SDK as singleton */}
+          <NinetailedPersonalizationProvider country={countryCode} />
           <SegmentProvider country={countryCode}>
             <Header collections={collections} storeName={storeName} />
             <Cart />

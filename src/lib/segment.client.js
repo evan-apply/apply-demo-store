@@ -14,22 +14,25 @@ function getAnalytics() {
 /* ─── Core wrappers ──────────────────────────────────────── */
 
 export function track(event, properties = {}) {
-  getAnalytics()?.track(event, {
-    ...properties,
-    source: 'apply-demo-store',
-  });
+  const props = { ...properties, source: 'apply-demo-store' };
+  getAnalytics()?.track(event, props);
+  // Mirror to Ninetailed (lazy import avoids SSR issues)
+  import('./ninetailed.client').then(({ntTrack}) => ntTrack(event, props)).catch(() => {});
 }
 
 export function identify(userId, traits = {}) {
   getAnalytics()?.identify(userId, traits);
+  import('./ninetailed.client').then(({ntIdentify}) => ntIdentify(userId, traits)).catch(() => {});
 }
 
 export function anonymousIdentify(traits = {}) {
   getAnalytics()?.identify(traits);
+  import('./ninetailed.client').then(({ntIdentify}) => ntIdentify('', traits)).catch(() => {});
 }
 
 export function page(name, properties = {}) {
   getAnalytics()?.page(name, properties);
+  import('./ninetailed.client').then(({ntPage}) => ntPage(name, properties)).catch(() => {});
 }
 
 /* ─── Identity helpers ───────────────────────────────────── */

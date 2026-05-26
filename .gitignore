@@ -31,3 +31,6 @@ Thumbs.db
 
 # Import scripts (used during setup only)
 import-content.mjs
+
+# Auto-generated Ninetailed browser bundle (rebuilt by scripts/build-ninetailed.sh)
+src/lib/ninetailed-bundle.js
