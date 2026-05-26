@@ -17,6 +17,7 @@ import FeaturedCollection from '../components/FeaturedCollection';
 import ProductCard from '../components/ProductCard';
 import {Suspense} from 'react';
 import {useContentfulQuery} from '../api/useContetnfulQuery';
+import BackcountryHeroLogic from '../components/BackcountryHeroLogic.client';
 
 const HERO_QUERY = gql`
   query heroProduct($language: LanguageCode) @inContext(language: $language) {
@@ -76,8 +77,10 @@ export default function Index() {
 function Hero({cms = {}}) {
   const {languageCode} = useShop();
 
-  // Use the product handle from Contentful, or fall back to first product
-  const featuredHandle = cms.heroFeaturedProductHandle || null;
+  // Use the product handle from Contentful
+  // '__DYNAMIC__' means the backcountry variant — resolved client-side
+  const isDynamic = cms.heroFeaturedProductHandle === '__DYNAMIC__';
+  const featuredHandle = isDynamic ? null : (cms.heroFeaturedProductHandle || null);
 
   const {data} = useShopQuery({
     query: featuredHandle ? HERO_QUERY_BY_HANDLE : HERO_QUERY,
@@ -213,17 +216,20 @@ function Hero({cms = {}}) {
               </Link>
             </div>
 
-            {heroProduct && (
-              <p style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '10px',
-                fontWeight: 500,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: '#C0BDB6',
-                margin: '36px 0 0',
-              }}>
-                {heroProduct.title}
+            {(heroProduct || isDynamic) && (
+              <p
+                id="nt-hero-label"
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: '#C0BDB6',
+                  margin: '36px 0 0',
+                }}
+              >
+                {heroProduct?.title || 'Backcountry Board'}
               </p>
             )}
           </div>
@@ -235,9 +241,14 @@ function Hero({cms = {}}) {
           alignItems: 'center',
           justifyContent: 'center',
           padding: '72px 64px',
+          position: 'relative',
         }}>
+          {/* Client logic: resolve last-clicked or random backcountry product */}
+          {isDynamic && <BackcountryHeroLogic />}
+
           {heroImage ? (
             <img
+              id="nt-hero-img"
               src={heroImage.url}
               alt={heroImage.altText || 'Featured product'}
               style={{
@@ -248,6 +259,14 @@ function Hero({cms = {}}) {
                 display: 'block',
                 mixBlendMode: 'multiply',
               }}
+            />
+          ) : isDynamic ? (
+            <img
+              id="nt-hero-img"
+              src=""
+              alt="Backcountry board"
+              style={{ maxHeight: '72vh', maxWidth: '100%', width: 'auto',
+                objectFit: 'contain', display: 'none', mixBlendMode: 'multiply' }}
             />
           ) : (
             <div style={{width: '300px', height: '400px', backgroundColor: '#E5E7EB'}} />
