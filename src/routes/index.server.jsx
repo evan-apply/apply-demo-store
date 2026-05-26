@@ -52,7 +52,8 @@ export default function Index() {
     key: ['homepageSettings'],
   });
 
-  const cms = cmsData?.data?.homepageSettingsCollection?.items?.[0] ?? {};
+  // homepageSettings returns a single object (fetched by ID)
+  const cms = cmsData?.data?.homepageSettings ?? {};
 
   return (
     <Layout hero={<Hero cms={cms} />}>
@@ -491,23 +492,22 @@ const HERO_QUERY_BY_HANDLE = gql`
 `;
 
 /* Contentful: fetch all homepage copy in one call */
+// Always fetch the DEFAULT entry by ID — prevents variant entries from leaking in
 const HOMEPAGE_CONTENTFUL_QUERY = `
   query {
-    homepageSettingsCollection(limit: 1) {
-      items {
-        heroEyebrow
-        heroHeadline
-        heroHeadlineAccent
-        heroSubheadline
-        heroCtaPrimary
-        heroCtaSecondary
-        heroFeaturedProductHandle
-        featuredSectionTitle
-        featuredCollectionHandle
-        collectionsGridTitle
-        seoTitle
-        seoDescription
-      }
+    homepageSettings(id: "homepageSettings") {
+      heroEyebrow
+      heroHeadline
+      heroHeadlineAccent
+      heroSubheadline
+      heroCtaPrimary
+      heroCtaSecondary
+      heroFeaturedProductHandle
+      featuredSectionTitle
+      featuredCollectionHandle
+      collectionsGridTitle
+      seoTitle
+      seoDescription
     }
   }
 `;

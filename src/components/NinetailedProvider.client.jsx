@@ -75,6 +75,73 @@ export default function NinetailedInit({country}) {
         properties: { path: window.location.pathname, url: window.location.href, country },
       });
 
+      // Listen for audience changes — swap hero content when profile changes
+      nt.onProfileChange((profileState) => {
+        if (!profileState?.profile) return;
+        const traits = profileState.profile.traits || {};
+        const inBackcountryAudience = traits.viewed_backcountry === true ||
+                                       traits.viewed_backcountry === 'true';
+
+        // Fetch the correct CMS entry and update the hero copy
+        const entryId = inBackcountryAudience
+          ? 'homepageSettings-backcountry-variant'
+          : 'homepageSettings';
+
+        fetch(`https://cdn.contentful.com/spaces/${SPACE_ID}/entries/${entryId}`, {
+          headers: { Authorization: `Bearer ${DELIVERY_TOKEN}` },
+        }).then(r => r.json()).then(entry => {
+          const f = entry.fields;
+          if (!f) return;
+
+          // Update headline
+          const h1 = document.querySelector('#hero-headline');
+          if (h1 && f.heroHeadline) {
+            const accent = f.heroHeadlineAccent || '';
+            const parts  = f.heroHeadline.split(new RegExp(`(${accent})`, 'i'));
+            h1.innerHTML  = parts.map(p =>
+              p.toLowerCase() === accent.toLowerCase()
+                ? `<span style="color:#FF481A">${p}</span>`
+                : p
+            ).join('');
+          }
+
+          // Update eyebrow
+          const eyebrow = document.querySelector('#hero-eyebrow');
+          if (eyebrow && f.heroEyebrow) eyebrow.textContent = f.heroEyebrow;
+
+          // Update subheadline
+          const sub = document.querySelector('#hero-subheadline');
+          if (sub && f.heroSubheadline) sub.textContent = f.heroSubheadline;
+
+          // Update CTAs
+          const cta1 = document.querySelector('#hero-cta-primary');
+          if (cta1 && f.heroCtaPrimary) cta1.textContent = f.heroCtaPrimary;
+          const cta2 = document.querySelector('#hero-cta-secondary span');
+          if (cta2 && f.heroCtaSecondary) cta2.textContent = f.heroCtaSecondary;
+
+          // Trigger BackcountryHeroLogic if variant
+          if (inBackcountryAudience && f.heroFeaturedProductHandle === '__DYNAMIC__') {
+            window.dispatchEvent(new CustomEvent('nt:backcountry-audience', { detail: { active: true } }));
+          } else if (!inBackcountryAudience && f.heroFeaturedProductHandle) {
+            // Restore default product image
+            fetch(`https://hydrogen-preview.myshopify.com/api/2022-07/graphql.json`, {
+              method: 'POST',
+              headers: {
+                'X-Shopify-Storefront-Access-Token': '3b580e70970c4528da70c98e097c2fa0',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ query: `{ product(handle:"${f.heroFeaturedProductHandle}"){title featuredImage{url altText}} }` }),
+            }).then(r => r.json()).then(d => {
+              const img = document.getElementById('nt-hero-img');
+              const url = d?.data?.product?.featuredImage?.url;
+              if (img && url) { img.src = url; img.style.display = 'block'; }
+              const label = document.getElementById('nt-hero-label');
+              if (label) label.textContent = d?.data?.product?.title || '';
+            }).catch(() => {});
+          }
+        }).catch(() => {});
+      });
+
       // Bridge Segment → Ninetailed
       const analytics = window.analytics;
       if (!analytics) return;

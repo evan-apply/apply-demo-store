@@ -40,7 +40,7 @@ export default function Layout({children, hero}) {
     query: FOOTER_CONTENTFUL_QUERY,
     key: ['footerSettings'],
   });
-  const footerCms = cmsData?.data?.homepageSettingsCollection?.items?.[0] ?? {};
+  const footerCms = cmsData?.data?.homepageSettings ?? {};
 
   return (
     <LocalizationProvider preload="*">
@@ -74,16 +74,15 @@ export default function Layout({children, hero}) {
   );
 }
 
+// Always fetch the DEFAULT entry by ID
 const FOOTER_CONTENTFUL_QUERY = `
   query {
-    homepageSettingsCollection(limit: 1) {
-      items {
-        footerTagline
-        footerShopTitle
-        footerInfoTitle
-        footerCopyrightName
-        footerTaglineRight
-      }
+    homepageSettings(id: "homepageSettings") {
+      footerTagline
+      footerShopTitle
+      footerInfoTitle
+      footerCopyrightName
+      footerTaglineRight
     }
   }
 `;
