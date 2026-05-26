@@ -131,7 +131,7 @@ function Hero({cms = {}}) {
           {/* Inner text block — fixed width, left-aligned internally */}
           <div style={{width: '340px'}}>
 
-            <p style={{
+            <p id="hero-eyebrow" style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: '11px',
               fontWeight: 500,
@@ -143,7 +143,7 @@ function Hero({cms = {}}) {
               {eyebrow}
             </p>
 
-            <h1 style={{
+            <h1 id="hero-headline" style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: '54px',
               fontWeight: 700,
@@ -166,7 +166,7 @@ function Hero({cms = {}}) {
               margin: '0 0 24px',
             }} />
 
-            <p style={{
+            <p id="hero-subheadline" style={{
               fontFamily: "'Wix Madefor Text', sans-serif",
               fontSize: '15px',
               lineHeight: 1.8,
@@ -178,6 +178,7 @@ function Hero({cms = {}}) {
 
             <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
               <Link
+                id="hero-cta-primary"
                 to={heroProduct ? `/products/${heroProduct.handle}` : '/collections/freestyle'}
                 className="apply-btn-primary"
                 style={{
