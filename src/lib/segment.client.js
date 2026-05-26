@@ -26,6 +26,10 @@ export function identify(userId, traits = {}) {
 }
 
 export function anonymousIdentify(traits = {}) {
+  // Persist country to sessionStorage so enrichAndIdentify can use it
+  if (traits.country && typeof window !== 'undefined') {
+    sessionStorage.setItem('apply_country', traits.country);
+  }
   getAnalytics()?.identify(traits);
   import('./ninetailed.client').then(({ntIdentify}) => ntIdentify('', traits)).catch(() => {});
 }
@@ -33,6 +37,83 @@ export function anonymousIdentify(traits = {}) {
 export function page(name, properties = {}) {
   getAnalytics()?.page(name, properties);
   import('./ninetailed.client').then(({ntPage}) => ntPage(name, properties)).catch(() => {});
+}
+
+/* ─── Audience trait enrichment ─────────────────────────────
+ *
+ * These are the traits Contentful Personalization uses to match audiences.
+ * Call enrichAndIdentify() whenever meaningful behaviour happens so both
+ * Segment profiles AND Ninetailed profiles stay up to date.
+ *
+ * In Contentful Optimization → Audiences, create rules like:
+ *   country == 'CA'
+ *   product_views_count >= 3
+ *   high_intent == true
+ *   is_returning_visitor == true
+ * ─────────────────────────────────────────────────────────── */
+
+/** Session-level counters stored in sessionStorage */
+function getSessionCounts() {
+  try {
+    return JSON.parse(sessionStorage.getItem('nt_session_counts') || '{}');
+  } catch { return {}; }
+}
+function setSessionCounts(counts) {
+  try { sessionStorage.setItem('nt_session_counts', JSON.stringify(counts)); } catch {}
+}
+
+/**
+ * Compute audience-ready traits from session behaviour and send to
+ * BOTH Segment (for profile enrichment) AND Ninetailed (for real-time matching).
+ *
+ * Call this whenever something meaningful happens — product view, add-to-cart, etc.
+ */
+export function enrichAndIdentify(userId, baseTraits = {}) {
+  if (typeof window === 'undefined') return;
+
+  const counts = getSessionCounts();
+
+  // Compute derived traits
+  const enriched = {
+    ...baseTraits,
+
+    // Geo — from Contentful geo-detection
+    country:  baseTraits.country || sessionStorage.getItem('apply_country') || 'unknown',
+
+    // Engagement depth
+    product_views_count:     counts.product_views     || 0,
+    collection_views_count:  counts.collection_views  || 0,
+    cart_adds_count:         counts.cart_adds         || 0,
+
+    // Derived audience flags — these become audience rules in Contentful
+    high_intent:          (counts.product_views || 0) >= 2 || (counts.cart_adds || 0) >= 1,
+    is_active_shopper:    (counts.product_views || 0) >= 3,
+    has_added_to_cart:    (counts.cart_adds || 0) >= 1,
+    is_returning_visitor: !!localStorage.getItem('nt_has_visited_before'),
+
+    // Session meta
+    session_page_views: counts.page_views || 0,
+  };
+
+  // Mark as returning on next visit
+  localStorage.setItem('nt_has_visited_before', '1');
+
+  // Send to Segment (enriches the profile in Segment Profiles)
+  if (userId) {
+    getAnalytics()?.identify(userId, enriched);
+    import('./ninetailed.client').then(({ntIdentify}) => ntIdentify(userId, enriched)).catch(() => {});
+  } else {
+    getAnalytics()?.identify(enriched);
+    import('./ninetailed.client').then(({ntIdentify}) => ntIdentify('', enriched)).catch(() => {});
+  }
+}
+
+/** Increment a session counter (call on meaningful events) */
+export function incrementSessionCount(key) {
+  if (typeof window === 'undefined') return;
+  const counts = getSessionCounts();
+  counts[key] = (counts[key] || 0) + 1;
+  setSessionCounts(counts);
 }
 
 /* ─── Identity helpers ───────────────────────────────────── */
@@ -65,8 +146,10 @@ export function shopifyIdToUserId(gid = '') {
 
 export const ecommerce = {
 
-  /** PDP load → Product Viewed */
+  /** PDP load → Product Viewed + increment product_views */
   productViewed(product, variant) {
+    incrementSessionCount('product_views');
+    enrichAndIdentify(null, {}); // re-compute high_intent / is_active_shopper
     track('Product Viewed', {
       product_id: product.id,
       sku:        variant?.sku || product.handle,
@@ -97,8 +180,10 @@ export const ecommerce = {
     });
   },
 
-  /** Add to Cart → Product Added */
+  /** Add to Cart → Product Added + increment cart_adds */
   productAdded(product, variant, quantity = 1) {
+    incrementSessionCount('cart_adds');
+    enrichAndIdentify(null, {}); // re-compute has_added_to_cart = true
     track('Product Added', {
       cart_id:    getCartId(),
       product_id: product.id,
