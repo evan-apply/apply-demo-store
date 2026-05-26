@@ -13,6 +13,7 @@ import Cart from './Cart.client';
 import SegmentProvider from './SegmentProvider.client';
 import {Suspense} from 'react';
 import {useSession} from '@shopify/hydrogen';
+import {useContentfulQuery} from '../api/useContetnfulQuery';
 
 /**
  * Apply Digital — Editorial Momentum
@@ -32,6 +33,13 @@ export default function Layout({children, hero}) {
   const collections = data ? flattenConnection(data.collections) : null;
   const products    = data ? flattenConnection(data.products) : null;
   const storeName   = data ? data.shop.name : '';
+
+  // Contentful: footer copy (shared across all pages)
+  const cmsData = useContentfulQuery({
+    query: FOOTER_CONTENTFUL_QUERY,
+    key: ['footerSettings'],
+  });
+  const footerCms = cmsData?.data?.homepageSettingsCollection?.items?.[0] ?? {};
 
   return (
     <LocalizationProvider preload="*">
@@ -57,11 +65,25 @@ export default function Layout({children, hero}) {
           </div>
         </main>
 
-        <Footer collection={collections?.[0]} product={products?.[0]} storeName={storeName} />
+        <Footer collection={collections?.[0]} product={products?.[0]} storeName={storeName} cms={footerCms} />
       </div>
     </LocalizationProvider>
   );
 }
+
+const FOOTER_CONTENTFUL_QUERY = `
+  query {
+    homepageSettingsCollection(limit: 1) {
+      items {
+        footerTagline
+        footerShopTitle
+        footerInfoTitle
+        footerCopyrightName
+        footerTaglineRight
+      }
+    }
+  }
+`;
 
 const QUERY = gql`
   query layoutContent($language: LanguageCode, $numCollections: Int!)

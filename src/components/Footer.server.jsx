@@ -2,16 +2,25 @@ import {Link} from '@shopify/hydrogen';
 
 /**
  * Apply Digital — Editorial Momentum
- * Footer: dark (inverse-surface #282A33), warm white text, orange hover
+ * Footer: dark bg, all copy powered by Contentful HomepageSettings.
+ * Falls back to hardcoded defaults if Contentful is unavailable.
  */
-export default function Footer({collection, product, storeName}) {
+export default function Footer({collection, product, storeName, cms = {}}) {
+  // All copy from Contentful with hardcoded fallbacks
+  const tagline        = cms.footerTagline       ?? 'Premium merchandise powered by Contentful & Shopify.';
+  const shopTitle      = cms.footerShopTitle      ?? 'Shop';
+  const infoTitle      = cms.footerInfoTitle      ?? 'Info';
+  const copyrightName  = cms.footerCopyrightName  ?? 'Apply Digital';
+  const taglineRight   = cms.footerTaglineRight   ?? 'Editorial Momentum';
+
   return (
     <footer role="contentinfo" style={{backgroundColor: '#282A33', color: '#F0F1F1'}}>
       {/* Lime accent strip */}
       <div style={{backgroundColor: '#D9FD3B', height: '4px'}} />
 
       <div className="mx-auto max-w-7xl px-8 md:px-16 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
-        {/* Brand column */}
+
+        {/* Brand column — tagline from Contentful */}
         <div>
           <div className="mb-4">
             <svg height="20" viewBox="0 0 2099 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Apply">
@@ -22,18 +31,19 @@ export default function Footer({collection, product, storeName}) {
               <path d="M230.281 342.652C224.58 345.923 222.353 349.449 221.265 352.334C219.975 355.755 219.616 360.297 220.909 365.15C222.203 370.004 224.774 373.765 227.596 376.09C229.976 378.051 233.662 380 240.235 380H368.053V263.604L230.281 342.652ZM488.053 420C488.053 464.183 452.236 500 408.053 500H240.235C96.7999 500 46.1516 309.95 170.562 238.568L202.924 220H108.484V100H408.053C452.236 100 488.053 135.817 488.053 180V420Z" fill="#F0F1F1"/>
             </svg>
           </div>
+          {/* Tagline from Contentful */}
           <p className="text-[#6D6A63] text-sm leading-relaxed max-w-xs">
-            Premium merchandise powered by Contentful & Shopify.
+            {tagline}
           </p>
         </div>
 
-        {/* Shop column */}
+        {/* Shop column — heading from Contentful */}
         <div>
           <h3
             className="text-[11px] font-medium tracking-[0.08em] uppercase mb-6"
             style={{fontFamily: "'Space Grotesk', sans-serif", color: '#6D6A63'}}
           >
-            Shop
+            {shopTitle}
           </h3>
           <ul className="space-y-3">
             {collection && (
@@ -70,13 +80,13 @@ export default function Footer({collection, product, storeName}) {
           </ul>
         </div>
 
-        {/* Info column */}
+        {/* Info column — heading from Contentful */}
         <div>
           <h3
             className="text-[11px] font-medium tracking-[0.08em] uppercase mb-6"
             style={{fontFamily: "'Space Grotesk', sans-serif", color: '#6D6A63'}}
           >
-            Info
+            {infoTitle}
           </h3>
           <ul className="space-y-3">
             <li>
@@ -103,13 +113,13 @@ export default function Footer({collection, product, storeName}) {
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar — both labels from Contentful */}
       <div
         className="border-t px-8 md:px-16 py-6 flex items-center justify-between text-xs"
         style={{borderColor: '#444650', color: '#6D6A63', fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '0.04em'}}
       >
-        <span>© {new Date().getFullYear()} Apply Digital. All rights reserved.</span>
-        <span className="uppercase tracking-[0.06em]">Editorial Momentum</span>
+        <span>© {new Date().getFullYear()} {copyrightName}. All rights reserved.</span>
+        <span className="uppercase tracking-[0.06em]">{taglineRight}</span>
       </div>
     </footer>
   );
