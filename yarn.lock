@@ -563,6 +563,24 @@
     analytics "0.8.1"
     zod "3.23.0"
 
+"@ninetailed/experience.js-plugin-preview@^7.23.2":
+  version "7.23.2"
+  resolved "https://registry.npmjs.org/@ninetailed/experience.js-plugin-preview/-/experience.js-plugin-preview-7.23.2.tgz"
+  integrity sha512-1NTUJm9WGx4+K/yjKrYKrRK9eTFhWQ1Zl6x3pM8ZsIHTqUSNjRIcCMgqtHYkC7cPYslwufCGuNTh0/JWNwlfbg==
+  dependencies:
+    "@ninetailed/experience.js" "7.23.2"
+    "@ninetailed/experience.js-plugin-analytics" "7.23.2"
+    "@ninetailed/experience.js-preview-bridge" "7.23.2"
+    "@ninetailed/experience.js-shared" "7.23.2"
+
+"@ninetailed/experience.js-preview-bridge@7.23.2":
+  version "7.23.2"
+  resolved "https://registry.npmjs.org/@ninetailed/experience.js-preview-bridge/-/experience.js-preview-bridge-7.23.2.tgz"
+  integrity sha512-LrqLSjjghJyqQBxL2qkQIuDb5+wrTlSaL/PFIa7GkKriFVzYIzVY0/3nntTen3MCqO+rW6hR6UQCQRZ0vgR65g==
+  dependencies:
+    "@ninetailed/experience.js-shared" "7.23.2"
+    zoid "9.0.86"
+
 "@ninetailed/experience.js-react@^7.23.2":
   version "7.23.2"
   resolved "https://registry.npmjs.org/@ninetailed/experience.js-react/-/experience.js-react-7.23.2.tgz"
@@ -1347,6 +1365,15 @@ base64-js@^1.3.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
+belter@^1.0.123, belter@^1.0.41:
+  version "1.0.190"
+  resolved "https://registry.npmjs.org/belter/-/belter-1.0.190.tgz"
+  integrity sha512-jz05FHrO+bwitdI6JxV5ESyRdVhTcwMWQ7L4o+q/R4LNJFQrG58sp9EiwsSjhbihhiyYFcmmCMRRagxte6igtw==
+  dependencies:
+    cross-domain-safe-weakmap "^1"
+    cross-domain-utils "^2"
+    zalgo-promise "^1"
+
 binary-extensions@^2.0.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.2.0.tgz"
@@ -1841,6 +1868,20 @@ core-js-pure@^3.20.2:
   version "3.22.8"
   resolved "https://registry.npmjs.org/core-js-pure/-/core-js-pure-3.22.8.tgz"
   integrity sha512-bOxbZIy9S5n4OVH63XaLVXZ49QKicjowDx/UELyJ68vxfCRpYsbyh/WNZNfEfAk+ekA8vSjt+gCDpvh672bc3w==
+
+cross-domain-safe-weakmap@^1, cross-domain-safe-weakmap@^1.0.1:
+  version "1.0.29"
+  resolved "https://registry.npmjs.org/cross-domain-safe-weakmap/-/cross-domain-safe-weakmap-1.0.29.tgz"
+  integrity sha512-VLoUgf2SXnf3+na8NfeUFV59TRZkIJqCIATaMdbhccgtnTlSnHXkyTRwokngEGYdQXx8JbHT9GDYitgR2sdjuA==
+  dependencies:
+    cross-domain-utils "^2.0.0"
+
+cross-domain-utils@^2, cross-domain-utils@^2.0.0, cross-domain-utils@^2.0.33:
+  version "2.0.38"
+  resolved "https://registry.npmjs.org/cross-domain-utils/-/cross-domain-utils-2.0.38.tgz"
+  integrity sha512-zZfi3+2EIR9l4chrEiXI2xFleyacsJf8YMLR1eJ0Veb5FTMXeJ3DpxDjZkto2FhL/g717WSELqbptNSo85UJDw==
+  dependencies:
+    zalgo-promise "^1.0.11"
 
 cross-env@^7.0.3:
   version "7.0.3"
@@ -4145,6 +4186,17 @@ playwright@^1.19.2:
   dependencies:
     playwright-core "1.22.2"
 
+post-robot@^10:
+  version "10.0.46"
+  resolved "https://registry.npmjs.org/post-robot/-/post-robot-10.0.46.tgz"
+  integrity sha512-EgVJiuvI4iRWDZvzObWes0X/n8olWBEJWxlSw79zmhpgkigX8UsVL4VOBhVtoJKwf0Y9qP9g2zOONw1rv80QbA==
+  dependencies:
+    belter "^1.0.41"
+    cross-domain-safe-weakmap "^1.0.1"
+    cross-domain-utils "^2.0.0"
+    universal-serialize "^1.0.4"
+    zalgo-promise "^1.0.3"
+
 postcss-import@^14.1.0:
   version "14.1.0"
   resolved "https://registry.npmjs.org/postcss-import/-/postcss-import-14.1.0.tgz"
@@ -5156,6 +5208,11 @@ undici@5.28.2:
   dependencies:
     "@fastify/busboy" "^2.0.0"
 
+universal-serialize@^1.0.4:
+  version "1.0.10"
+  resolved "https://registry.npmjs.org/universal-serialize/-/universal-serialize-1.0.10.tgz"
+  integrity sha512-FdouA4xSFa0fudk1+z5vLWtxZCoC0Q9lKYV3uUdFl7DttNfolmiw2ASr5ddY+/Yz6Isr68u3IqC9XMSwMP+Pow==
+
 universalify@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/universalify/-/universalify-2.0.0.tgz"
@@ -5394,7 +5451,22 @@ yauzl@^2.10.0:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
 
+zalgo-promise@^1, zalgo-promise@^1.0.11, zalgo-promise@^1.0.3, zalgo-promise@^1.0.45:
+  version "1.0.48"
+  resolved "https://registry.npmjs.org/zalgo-promise/-/zalgo-promise-1.0.48.tgz"
+  integrity sha512-LLHANmdm53+MucY9aOFIggzYtUdkSBFxUsy4glTTQYNyK6B3uCPWTbfiGvSrEvLojw0mSzyFJ1/RRLv+QMNdzQ==
+
 zod@3.23.0:
   version "3.23.0"
   resolved "https://registry.npmjs.org/zod/-/zod-3.23.0.tgz"
   integrity sha512-OFLT+LTocvabn6q76BTwVB0hExEBS0IduTr3cqZyMqEDbOnYmcU+y0tUAYbND4uwclpBGi4I4UUBGzylWpjLGA==
+
+zoid@9.0.86:
+  version "9.0.86"
+  resolved "https://registry.npmjs.org/zoid/-/zoid-9.0.86.tgz"
+  integrity sha512-hWcLj0s4cHKErUUn0Nz2bvuCStA9/y3sz/0gFxvAhompu9v54i+Pik0Kx39pWPB8qbiEN7MRyHohv1ZERlHeSg==
+  dependencies:
+    belter "^1.0.123"
+    cross-domain-utils "^2.0.33"
+    post-robot "^10"
+    zalgo-promise "^1.0.45"

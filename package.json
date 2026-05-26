@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.5.0",
+    "@ninetailed/experience.js-plugin-preview": "^7.23.2",
     "@ninetailed/experience.js-react": "^7.23.2",
     "@shopify/hydrogen": "^0.23.0",
     "body-parser": "^1.20.0",
