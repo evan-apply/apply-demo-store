@@ -16,6 +16,7 @@ import Layout from '../components/Layout.server';
 import FeaturedCollection from '../components/FeaturedCollection';
 import ProductCard from '../components/ProductCard';
 import {Suspense} from 'react';
+import {useContentfulQuery} from '../api/useContetnfulQuery';
 
 const HERO_QUERY = gql`
   query heroProduct($language: LanguageCode) @inContext(language: $language) {
@@ -44,38 +45,64 @@ export default function Index() {
     shopify: {pageType: ShopifyAnalyticsConstants.pageType.home},
   });
 
+  // ── Contentful: fetch homepage settings ──────────────────
+  const cmsData = useContentfulQuery({
+    query: HOMEPAGE_CONTENTFUL_QUERY,
+    key: ['homepageSettings'],
+  });
+
+  const cms = cmsData?.data?.homepageSettingsCollection?.items?.[0] ?? {};
+
   return (
-    <Layout hero={<Hero />}>
+    <Layout hero={<Hero cms={cms} />}>
       <Suspense fallback={null}>
-        <SeoForHomepage />
+        <SeoForHomepage cms={cms} />
       </Suspense>
 
       {/* Featured Products */}
       <Suspense fallback={<SectionSkeleton />}>
-        <FeaturedProductsSection country={countryCode} />
+        <FeaturedProductsSection country={countryCode} cms={cms} />
       </Suspense>
 
       {/* Editorial collection grid */}
       <Suspense fallback={<SectionSkeleton />}>
-        <CollectionEditorialGrid country={countryCode} />
+        <CollectionEditorialGrid country={countryCode} cms={cms} />
       </Suspense>
     </Layout>
   );
 }
 
 /* ─── Hero ─────────────────────────────────────────────── */
-function Hero() {
+function Hero({cms = {}}) {
   const {languageCode} = useShop();
 
+  // Use the product handle from Contentful, or fall back to first product
+  const featuredHandle = cms.heroFeaturedProductHandle || null;
+
   const {data} = useShopQuery({
-    query: HERO_QUERY,
-    variables: {language: languageCode},
+    query: featuredHandle ? HERO_QUERY_BY_HANDLE : HERO_QUERY,
+    variables: featuredHandle
+      ? {language: languageCode, handle: featuredHandle}
+      : {language: languageCode},
     preload: true,
   });
 
-  const products    = data ? flattenConnection(data.products) : [];
-  const heroProduct = products[0];
-  const heroImage   = heroProduct?.variants?.edges?.[0]?.node?.image;
+  // Support both product(handle:) and products(first:1) query shapes
+  const heroProduct = featuredHandle
+    ? data?.product
+    : flattenConnection(data?.products ?? {edges: []})[0];
+  const heroImage = heroProduct?.variants?.edges?.[0]?.node?.image;
+
+  // CMS copy with fallbacks
+  const eyebrow     = cms.heroEyebrow     ?? 'New Arrivals — 2026';
+  const headline    = cms.heroHeadline    ?? 'Gear That Moves With You';
+  const accent      = cms.heroHeadlineAccent ?? 'Moves';
+  const subheadline = cms.heroSubheadline ?? 'Premium merchandise for the people who build things.';
+  const ctaPrimary  = cms.heroCtaPrimary  ?? 'Shop Now';
+  const ctaSecondary = cms.heroCtaSecondary ?? 'All Collections';
+
+  // Build the headline: split on accent word so we can colour it
+  const headlineParts = headline.split(new RegExp(`(${accent})`, 'i'));
 
   return (
     <section style={{
@@ -109,7 +136,7 @@ function Hero() {
               color: '#9D9A93',
               margin: '0 0 32px',
             }}>
-              New Arrivals — 2026
+              {eyebrow}
             </p>
 
             <h1 style={{
@@ -121,9 +148,11 @@ function Hero() {
               color: '#282A33',
               margin: '0 0 28px',
             }}>
-              Gear That<br />
-              <span style={{color: '#FF481A'}}>Moves</span><br />
-              With You
+              {headlineParts.map((part, i) =>
+                part.toLowerCase() === accent.toLowerCase()
+                  ? <span key={i} style={{color: '#FF481A'}}>{part}</span>
+                  : part
+              )}
             </h1>
 
             <div style={{
@@ -140,7 +169,7 @@ function Hero() {
               color: '#5F5C4E',
               margin: '0 0 44px',
             }}>
-              Premium merchandise for the people who build things.
+              {subheadline}
             </p>
 
             <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
@@ -160,10 +189,10 @@ function Hero() {
                   color: '#FFFFFF',
                 }}
               >
-                Shop Now
+                {ctaPrimary}
               </Link>
               <Link
-                to="/collections/freestyle"
+                to={`/collections/${cms.featuredCollectionHandle ?? 'freestyle'}`}
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontSize: '11px',
@@ -177,7 +206,7 @@ function Hero() {
                   gap: '6px',
                 }}
               >
-                All Collections
+                {ctaSecondary}
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -231,7 +260,7 @@ function Hero() {
 }
 
 /* ─── Featured Products ─────────────────────────────────── */
-function FeaturedProductsSection({country}) {
+function FeaturedProductsSection({country, cms = {}}) {
   const {languageCode} = useShop();
 
   const {data} = useShopQuery({
@@ -254,7 +283,7 @@ function FeaturedProductsSection({country}) {
           className="text-2xl font-bold"
           style={{fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.02em', color: '#282A33'}}
         >
-          {firstColl.title}
+          {cms.featuredSectionTitle || firstColl.title}
         </h2>
         <Link
           to={`/collections/${firstColl.handle}`}
@@ -278,7 +307,7 @@ function FeaturedProductsSection({country}) {
 }
 
 /* ─── Muji-style Collection Editorial Grid ──────────────── */
-function CollectionEditorialGrid({country}) {
+function CollectionEditorialGrid({country, cms = {}}) {
   const {languageCode} = useShop();
 
   const {data} = useShopQuery({
@@ -305,7 +334,7 @@ function CollectionEditorialGrid({country}) {
         color: '#282A33',
         marginBottom: '32px',
       }}>
-        Shop by Collection
+        {cms.collectionsGridTitle || 'Shop by Collection'}
       </h2>
 
       {/* 2-col grid */}
@@ -400,13 +429,18 @@ function CollectionTile({collection, aspectRatio}) {
   );
 }
 
-function SeoForHomepage() {
+function SeoForHomepage({cms = {}}) {
   const {data: {shop: {description}}} = useShopQuery({
     query: SEO_QUERY,
     cache: CacheDays(),
     preload: true,
   });
-  return <Seo type="homepage" data={{title: 'Apply Merch', description}} />;
+  return (
+    <Seo type="homepage" data={{
+      title:       cms.seoTitle       || 'Apply Demo Store',
+      description: cms.seoDescription || description,
+    }} />
+  );
 }
 
 function SectionSkeleton() {
@@ -416,6 +450,46 @@ function SectionSkeleton() {
 const SEO_QUERY = gql`
   query homeShopInfo {
     shop { description }
+  }
+`;
+
+/* Fetch a specific product by handle (used when Contentful specifies one) */
+const HERO_QUERY_BY_HANDLE = gql`
+  query heroProductByHandle($language: LanguageCode, $handle: String!)
+  @inContext(language: $language) {
+    product(handle: $handle) {
+      title
+      handle
+      variants(first: 1) {
+        edges {
+          node {
+            image { id url altText width height }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/* Contentful: fetch all homepage copy in one call */
+const HOMEPAGE_CONTENTFUL_QUERY = `
+  query {
+    homepageSettingsCollection(limit: 1) {
+      items {
+        heroEyebrow
+        heroHeadline
+        heroHeadlineAccent
+        heroSubheadline
+        heroCtaPrimary
+        heroCtaSecondary
+        heroFeaturedProductHandle
+        featuredSectionTitle
+        featuredCollectionHandle
+        collectionsGridTitle
+        seoTitle
+        seoDescription
+      }
+    }
   }
 `;
 
