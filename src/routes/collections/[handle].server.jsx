@@ -123,6 +123,7 @@ const QUERY = gql`
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
+      handle
       title
       descriptionHtml
       description
